@@ -1,5 +1,5 @@
 name: "Setup ZeroDrop"
-description: "Email verification for CI — generates an isolated inbox per run. OTPs and magic links auto-extracted. No Docker, no SMTP, no signup."
+description: "Isolated email inbox per CI run — OTPs and magic links auto-extracted. No Docker, no SMTP, no signup."
 author: "ZeroDrop"
 
 branding:
