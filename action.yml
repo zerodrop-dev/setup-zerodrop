@@ -1,0 +1,31 @@
+name: "Setup ZeroDrop"
+description: "Email verification for CI — generates an isolated inbox per run. OTPs and magic links auto-extracted. No Docker, no SMTP, no signup."
+author: "ZeroDrop"
+
+branding:
+  icon: "mail"
+  color: "green"
+
+inputs:
+  prefix:
+    description: "Optional prefix for the generated inbox name (e.g. your app name)"
+    required: false
+    default: ""
+  api-key:
+    description: "ZeroDrop Workspace API key. Omit for free sandbox mode — no signup required."
+    required: false
+    default: ""
+  base-url:
+    description: "Override for self-hosted ZeroDrop instances"
+    required: false
+    default: "https://zerodrop.dev"
+
+outputs:
+  inbox:
+    description: "The generated inbox address, e.g. swift-x7k29ab@zerodrop-sandbox.online"
+  name:
+    description: "The inbox name without the domain, e.g. swift-x7k29ab"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"

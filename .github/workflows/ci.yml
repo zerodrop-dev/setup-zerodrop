@@ -1,0 +1,37 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Run action & verify outputs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run setup-zerodrop (no prefix)
+        id: plain
+        uses: ./
+
+      - name: Run setup-zerodrop (with prefix)
+        id: prefixed
+        uses: ./
+        with:
+          prefix: citest
+
+      - name: Verify outputs
+        run: |
+          set -e
+          INBOX="${{ steps.plain.outputs.inbox }}"
+          NAME="${{ steps.plain.outputs.name }}"
+          PINBOX="${{ steps.prefixed.outputs.inbox }}"
+
+          echo "plain inbox:    $INBOX"
+          echo "prefixed inbox: $PINBOX"
+
+          [[ "$INBOX" =~ ^[a-z]+-[a-z0-9]{7}@zerodrop-sandbox\.online$ ]] || { echo "bad plain inbox"; exit 1; }
+          [[ "$PINBOX" =~ ^citest-[a-z]+-[a-z0-9]{7}@zerodrop-sandbox\.online$ ]] || { echo "bad prefixed inbox"; exit 1; }
+          [[ "$INBOX" == "$NAME@zerodrop-sandbox.online" ]] || { echo "name/inbox mismatch"; exit 1; }
+          [[ -n "$ZERODROP_INBOX" ]] || { echo "env var not exported"; exit 1; }
+
+          echo "all checks passed ✓"
