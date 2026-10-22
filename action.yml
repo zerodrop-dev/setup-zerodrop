@@ -12,17 +12,17 @@ inputs:
     required: false
     default: ""
   api-key:
-    description: "ZeroDrop Workspace API key. Omit for free sandbox mode — no signup required."
+    description: "Free API key from https://zerodrop.dev/keys. The inbox name then starts with the key's prefix and only that key can read it; the key is also exported as ZERODROP_API_KEY. Defaults to a ZERODROP_API_KEY already set in the job. Omit both for a public inbox — no signup required."
     required: false
     default: ""
   base-url:
-    description: "Override for self-hosted ZeroDrop instances"
+    description: "Not used: the action makes no network requests. Kept so workflows that set it keep working."
     required: false
     default: "https://zerodrop.dev"
 
 outputs:
   inbox:
-    description: "The generated inbox address, e.g. swift-x7k29ab@zerodrop-sandbox.online"
+    description: "The generated inbox address, e.g. swift-x7k29ab@zerodrop-sandbox.online (k7x2-swift-x7k29ab@... with an API key)"
   name:
     description: "The inbox name without the domain, e.g. swift-x7k29ab"
 
