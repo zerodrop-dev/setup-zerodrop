@@ -4,7 +4,7 @@
 [![GitHub Marketplace](https://img.shields.io/badge/marketplace-setup--zerodrop-green?logo=github)](https://github.com/marketplace/actions/setup-zerodrop)
 [![license](https://img.shields.io/github/license/zerodrop-dev/setup-zerodrop.svg)](LICENSE)
 
-Email verification for CI — generates an isolated inbox per run. OTPs and magic links auto-extracted at Cloudflare's edge. No Docker, no SMTP, no signup.
+Email verification for CI — generates an isolated inbox per run. OTPs and magic links auto-extracted at Cloudflare's edge. No Docker, no SMTP, no signup to try.
 
 ```yaml
 - uses: zerodrop-dev/setup-zerodrop@v1
@@ -15,7 +15,9 @@ Email verification for CI — generates an isolated inbox per run. OTPs and magi
     TEST_INBOX: ${{ steps.mail.outputs.inbox }}
 ```
 
-That's it. Every workflow run gets a fresh, isolated inbox. Parallel jobs never collide.
+That's it. Every workflow run gets a fresh inbox. Parallel jobs never collide.
+
+Without an API key, one sender can reach only 5 different inboxes a day. If your workflow runs more often than that, [add a free key](#with-a-free-api-key-private-inboxes).
 
 ## How it works
 
@@ -73,7 +75,7 @@ The action also exports env vars — no `steps.<id>.outputs` wiring needed:
 
 ### With a free API key (private inboxes)
 
-Without a key, anyone who knows an inbox's name can read it. Sign in with GitHub at [zerodrop.dev/keys](https://zerodrop.dev/keys) for a free key, store it as a repository secret, and pass it in:
+Without a key, anyone who knows an inbox's name can read it, and one sender can reach only 5 different inboxes a day: past that, the inbox gets a notice from `notice@zerodrop.dev` instead of the email. Sign in with GitHub at [zerodrop.dev/keys](https://zerodrop.dev/keys) for a free key, store it as a repository secret, and pass it in:
 
 ```yaml
 - uses: zerodrop-dev/setup-zerodrop@v1
@@ -84,11 +86,11 @@ Without a key, anyone who knows an inbox's name can read it. Sign in with GitHub
 # Exports ZERODROP_API_KEY for your test steps
 ```
 
-The inbox name then starts with your key's prefix (`k7x2` here), and only your key can read it. With `prefix: myapp` as well, you get `k7x2-myapp-swift-x7k29ab`. ZeroDrop SDKs read `ZERODROP_API_KEY` on their own (TypeScript 0.3.0+; Python, Ruby, Go, PHP and Java 0.2.0+); with an older SDK, pass the key to the client yourself.
+The inbox name then starts with your key's prefix (`k7x2` here), only your key can read it, and mail to it isn't limited. With `prefix: myapp` as well, you get `k7x2-myapp-swift-x7k29ab`. ZeroDrop SDKs read `ZERODROP_API_KEY` on their own (TypeScript 0.3.0+; Python, Ruby, Go, PHP and Java 0.2.0+); with an older SDK, pass the key to the client yourself.
 
 If the job already sets `ZERODROP_API_KEY` in its `env`, you can leave out `api-key`: the action uses that key.
 
-Free sandbox mode needs no key. [Workspaces](https://zerodrop.dev/pricing) add custom domains and extended retention.
+Free sandbox mode works without a key, within that daily limit. [Workspaces](https://zerodrop.dev/pricing) add custom domains and extended retention.
 
 ## Inputs
 
@@ -129,6 +131,8 @@ email.otp        // "847291" — auto-extracted, no regex
 email.magicLink  // "https://..." — auto-extracted
 ```
 
+If ZeroDrop held an email because its sender passed the daily limit, current SDKs stop waiting and raise an error that says so: TypeScript 0.4.0+, Python, Ruby and PHP 0.3.0+, Go and Java v0.3.0+. Older ones return the notice as if it were the email, or time out when a filter skips it.
+
 SDKs: [npm](https://www.npmjs.com/package/zerodrop-client) · [PyPI](https://pypi.org/project/zerodrop/) · [Go](https://pkg.go.dev/github.com/zerodrop-dev/zerodrop-go) · [RubyGems](https://rubygems.org/gems/zerodrop) · [Packagist](https://packagist.org/packages/zerodrop/zerodrop) · [JitPack](https://jitpack.io/#zerodrop-dev/zerodrop-java)
 
 ## Supply chain security
@@ -136,7 +140,7 @@ SDKs: [npm](https://www.npmjs.com/package/zerodrop-client) · [PyPI](https://pyp
 Pin to a commit SHA instead of a tag:
 
 ```yaml
-- uses: zerodrop-dev/setup-zerodrop@<commit-sha>  # v1
+- uses: zerodrop-dev/setup-zerodrop@aa882ace46b204bfd84bbcc374df73d32cf67343 # v1.1.0
 ```
 
 The action is a single dependency-free `dist/index.js` — auditable in one read. Inbox generation is fully local; the action makes **no network requests**.
